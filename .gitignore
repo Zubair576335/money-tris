@@ -1,0 +1,38 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+build/
+dist/
+
+# React
+*.env
+.env.*
+
+# Java/Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# Docker
+*.pid
+
+# Logs
+logs/
+*.log
+
+# Misc
+*.swp
+*.swo
