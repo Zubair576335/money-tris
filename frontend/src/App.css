@@ -1,0 +1,233 @@
+/* Global Styles */
+html, body {
+  height: 100%; /* Ensure the page takes up the full height */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  line-height: 1.6;
+}
+
+h1 {
+  text-align: center;
+  color: #4CAF50;
+  padding-top: 20px;
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: #4CAF50;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.8em;
+  font-weight: 600;
+}
+
+/* Main Container */
+.App {
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh; /* Ensure the minimum height of the app fills the screen */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  overflow-y: auto; /* Enable vertical scrolling */
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  height: 100%; /* Ensure it takes up the full height of the viewport */
+}
+
+/* Buttons */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px); /* Slight lift effect */
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+/* Form Styles */
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  max-width: 450px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+form input {
+  padding: 12px;
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
+
+form input:focus {
+  outline: none;
+  border-color: #4CAF50;
+}
+
+/* Expense List */
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul li {
+  background-color: #fff;
+  padding: 18px;
+  margin: 12px 0;
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+ul li:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+ul li span {
+  font-size: 1.2em;
+  color: #333;
+}
+
+ul li button {
+  margin-left: 12px;
+  background-color: #ff4d4d;
+  padding: 8px 16px;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease-in-out;
+}
+
+ul li button:hover {
+  background-color: #e63d3d;
+  transform: translateY(-2px);
+}
+
+/* Links */
+a {
+  text-decoration: none;
+  color: #4CAF50;
+  font-weight: 600;
+  margin-top: 20px;
+  display: inline-block;
+  font-size: 16px;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .App {
+    padding: 15px;
+  }
+
+  form {
+    padding: 20px;
+    width: 100%; /* Ensure form takes up full width on small screens */
+  }
+
+  button {
+    width: 100%;
+  }
+
+  h1 {
+    font-size: 2em; /* Adjust heading size on mobile */
+  }
+
+  h2 {
+    font-size: 1.5em; /* Adjust heading size on mobile */
+  }
+
+  ul li {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    align-items: flex-start;
+  }
+
+  ul li button {
+    margin-top: 10px; /* Adjust margin for buttons in expense list */
+  }
+}
+
+/* Ensure the body fills the entire screen and removes margin */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* Container to hold the entire app */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Navbar styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #fff; /* Background for navbar */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional shadow */
+}
+
+/* Footer styles */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+}
+
+/* Make the main content scrollable */
+.main-content {
+  flex: 1;
+  margin-top: 60px; /* Adjust if the navbar is larger */
+  margin-bottom: 50px; /* Adjust if the footer is larger */
+  overflow-y: auto; /* Allows vertical scrolling */
+  padding: 20px;
+}
