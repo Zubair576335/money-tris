@@ -1,0 +1,114 @@
+/* Container for the entire expense list page */
+.expense-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Heading for the page */
+.expense-container h2 {
+  font-size: 2.5rem; /* Increased font size for the heading */
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+/* Style for the Add Expense button */
+.add-expense-btn {
+  background-color: #27ae60;
+  color: white;
+  padding: 12px 24px;
+  font-size: 1.2rem; /* Increased font size */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 20px; /* Space between the button and table */
+  transition: background-color 0.3s ease;
+  text-align: center;
+}
+
+.add-expense-btn:hover {
+  background-color: #2ecc71;
+}
+
+/* Table container */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Styling for the table */
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd; /* Adding border around table */
+}
+
+/* Adding horizontal line between rows */
+.expense-table tr {
+  border-bottom: 1px solid #ddd; /* Adds horizontal line between rows */
+}
+
+.expense-table th, .expense-table td {
+  padding: 15px; /* Increased padding for better readability */
+  text-align: left;
+  border-right: 1px solid #ddd; /* Visible line between columns */
+  font-size: 1.1rem; /* Increased font size for table cells */
+}
+
+.expense-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  border-left: 1px solid #ddd; /* Border on the left side of the first column */
+}
+
+.expense-table td {
+  background-color: #ffffff;
+}
+
+.date-column {
+  text-align: center;
+}
+
+.operation-column {
+  text-align: center;
+  display: flex;
+  justify-content: center; /* Ensures buttons are centered in a single row */
+  gap: 10px; /* Space between the buttons */
+}
+
+/* Update and Delete buttons */
+.update-btn, .delete-btn {
+  padding: 10px 20px; /* Increased button padding */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 0; /* Remove margin for single row display */
+  font-size: 1rem; /* Slightly larger font for buttons */
+}
+
+.update-btn {
+  background-color: #3498db;
+  color: white;
+}
+
+.delete-btn {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.update-btn:hover {
+  background-color: #2980b9;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
+
+/* No data message when there are no expenses */
+.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #7f8c8d;
+  padding: 20px;
+  font-size: 1.5rem; /* Increased font size */
+}
