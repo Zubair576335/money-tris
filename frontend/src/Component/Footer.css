@@ -1,0 +1,82 @@
+/* Footer styling */
+.footer {
+    background-color: #282c34; /* Dark background for the footer */
+    color: white; /* White text color */
+    text-align: center; /* Center align text */
+    padding: 15px 0; /* Vertical padding reduced from 20px to 15px */
+    position:absolute; /* Fix the footer to the bottom */
+    bottom: 0; /* Align to the bottom */
+    left: 0; /* Ensure it starts from the left */
+    width: 100%; /* Full width */
+    font-size: 0.9rem; /* Slightly smaller font size */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for separation */
+    z-index: 1000; /* Ensure it's above other content */
+    overflow: hidden; /* To prevent content overflow */
+}
+
+/* Footer content container */
+.footer-content {
+    max-width: 1200px; /* Adjust based on your design */
+    margin: 0 auto; /* Center the content */
+    padding: 0 15px; /* Add padding to avoid content touching the edges */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap; /* Allow the sections to wrap in smaller screens */
+}
+
+/* Footer sections */
+.footer-section {
+    flex: 1;
+    min-width: 250px;
+    padding: 10px;
+}
+
+.footer-section h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.footer-section p {
+    margin: 5px 0;
+}
+
+.footer-section ul {
+    padding: 0;
+    list-style: none;
+}
+
+.footer-section ul li {
+    margin-bottom: 8px;
+}
+
+.footer-section ul li a {
+    color: #4CAF50; /* Green color for the links */
+    text-decoration: none;
+}
+
+.footer-section ul li a:hover {
+    text-decoration: underline;
+}
+
+/* Profile image */
+.profile-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+/* Footer bottom copyright */
+.footer-bottom {
+    text-align: center;
+    padding-top: 10px; /* Reduced padding for the bottom copyright */
+    background-color: #222;
+    color: #aaa;
+}
+
+/* Footer text styling */
+.footer p {
+    margin: 0; /* Remove default margin */
+    font-size: 0.9rem; /* Slightly smaller font size */
+}
