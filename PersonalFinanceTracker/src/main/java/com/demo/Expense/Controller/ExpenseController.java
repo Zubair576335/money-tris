@@ -2,6 +2,8 @@ package com.demo.Expense.Controller;
 
 import com.demo.Expense.Model.Expense;
 import com.demo.Expense.Model.ExpenseSummary;
+import com.demo.Expense.Model.Category;
+import com.demo.Expense.Repository.CategoryRepository;
 import com.demo.Expense.Service.ExpenseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @RestController
@@ -19,40 +25,64 @@ public class ExpenseController {
 
     @Autowired
     private ExpenseService expenseService;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     // Add expense
     @PostMapping("/add")
-    public ResponseEntity<?> addExpense(@RequestBody Expense expense) {
-        expenseService.saveExpense(expense);
-        return ResponseEntity.status(HttpStatus.CREATED).body(expense);
+    public ResponseEntity<?> addExpense(@RequestBody Map<String, Object> payload) {
+        try {
+            Double amount = Double.valueOf(payload.get("amount").toString());
+            Long categoryId = Long.valueOf(payload.get("categoryId").toString());
+            String dateStr = payload.get("date").toString();
+            Category category = categoryRepository.findById(categoryId).orElse(null);
+            if (category == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category");
+            Expense expense = new Expense();
+            expense.setAmount(amount);
+            expense.setCategory(category);
+            expense.setDate(LocalDate.parse(dateStr));
+            expenseService.saveExpense(expense);
+            return ResponseEntity.status(HttpStatus.CREATED).body(expenseToDto(expense));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
     }
 
     // Get all expenses
     @GetMapping("/all")
-    public ResponseEntity<List<Expense>> getAllExpenses() {
-        return ResponseEntity.ok(expenseService.getAllExpenses());
+    public ResponseEntity<List<Map<String, Object>>> getAllExpenses() {
+        List<Expense> expenses = expenseService.getAllExpenses();
+        List<Map<String, Object>> dtos = expenses.stream().map(this::expenseToDto).collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
 
     // Get an expense by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Expense> getExpenseById(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getExpenseById(@PathVariable Long id) {
         Optional<Expense> expense = expenseService.getExpenseById(id);
-        return expense.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return expense.map(e -> ResponseEntity.ok(expenseToDto(e))).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     // Update an existing expense
     @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody Expense updatedExpense) {
+    public ResponseEntity<?> updateExpense(@PathVariable Long id, @RequestBody Map<String, Object> payload) {
         Optional<Expense> existingExpense = expenseService.getExpenseById(id);
-
         if (existingExpense.isPresent()) {
             Expense expense = existingExpense.get();
-            expense.setAmount(updatedExpense.getAmount());
-            expense.setCategory(updatedExpense.getCategory());
-            expense.setDate(updatedExpense.getDate());
-
-            expenseService.saveExpense(expense); // Save updated expense
-            return ResponseEntity.ok(expense);
+            try {
+                Double amount = Double.valueOf(payload.get("amount").toString());
+                Long categoryId = Long.valueOf(payload.get("categoryId").toString());
+                String dateStr = payload.get("date").toString();
+                Category category = categoryRepository.findById(categoryId).orElse(null);
+                if (category == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category");
+                expense.setAmount(amount);
+                expense.setCategory(category);
+                expense.setDate(LocalDate.parse(dateStr));
+                expenseService.saveExpense(expense);
+                return ResponseEntity.ok(expenseToDto(expense));
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+            }
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Expense not found.");
         }
@@ -70,5 +100,17 @@ public class ExpenseController {
     public ResponseEntity<ExpenseSummary> getExpenseSummary() {
         ExpenseSummary summary = expenseService.getExpenseSummary();
         return ResponseEntity.ok(summary);
+    }
+
+    private Map<String, Object> expenseToDto(Expense expense) {
+        Map<String, Object> dto = new HashMap<>();
+        dto.put("id", expense.getId());
+        dto.put("amount", expense.getAmount());
+        dto.put("date", expense.getDate());
+        if (expense.getCategory() != null) {
+            dto.put("categoryId", expense.getCategory().getId());
+            dto.put("categoryName", expense.getCategory().getName());
+        }
+        return dto;
     }
 }

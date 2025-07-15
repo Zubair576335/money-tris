@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 const EditExpense = () => {
   const { id } = useParams();
@@ -15,8 +15,20 @@ const EditExpense = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const userId = 1; // Replace with real user ID from auth context/localStorage in production
+  const [categories, setCategories] = useState([]);
+
   useEffect(() => {
     fetchExpenseDetails();
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/categories?userId=${userId}`);
+        setCategories(response.data);
+      } catch (err) {
+        setError("Failed to load categories.");
+      }
+    };
+    fetchCategories();
     // eslint-disable-next-line
   }, []);
 
@@ -39,7 +51,11 @@ const EditExpense = () => {
     setSuccess("");
     setLoading(true);
     try {
-      await axios.put(`http://localhost:8080/api/expenses/update/${id}`, expense);
+      await axios.put(`http://localhost:8080/api/expenses/update/${id}`, {
+        amount: expense.amount,
+        categoryId: expense.categoryId || expense.category || '',
+        date: expense.date,
+      });
       setSuccess("Expense updated successfully!");
       setTimeout(() => {
         navigate("/expense-list");
@@ -60,15 +76,23 @@ const EditExpense = () => {
             <Stack spacing={2}>
               {error && <Alert severity="error">{error}</Alert>}
               {success && <Alert severity="success">{success}</Alert>}
-              <TextField
-                label="Category"
-                name="category"
-                value={expense.category}
-                onChange={handleChange}
-                fullWidth
-                required
-                autoFocus
-              />
+              <FormControl fullWidth required>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  label="Category"
+                  name="category"
+                  value={expense.categoryId || expense.category}
+                  onChange={(e) => setExpense({ ...expense, categoryId: e.target.value })}
+                  disabled={categories.length === 0}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {categories.length === 0 && (
+                <Alert severity="warning">No categories found. Please add a category first.</Alert>
+              )}
               <TextField
                 label="Amount"
                 name="amount"
@@ -88,7 +112,7 @@ const EditExpense = () => {
                 required
                 InputLabelProps={{ shrink: true }}
               />
-              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading || !(expense.categoryId || expense.category)} size="large">
                 {loading ? 'Saving...' : 'Save'}
               </Button>
               <Button type="button" variant="outlined" color="secondary" fullWidth onClick={() => navigate("/expense-list")}>Cancel</Button>

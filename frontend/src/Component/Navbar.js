@@ -25,6 +25,7 @@ const Navbar = () => {
           <Button color="inherit" onClick={() => navigate('/dashboard')}>Dashboard</Button>
           <Button color="inherit" onClick={() => navigate('/expense-list')}>Expense List</Button>
           <Button color="inherit" onClick={() => navigate('/add-expense')}>Add Expense</Button>
+          <Button color="inherit" onClick={() => navigate('/budgets')}>Budgets</Button>
           <Button color="inherit" onClick={() => navigate('/about-us')}>About Us</Button>
           <IconButton color="inherit" onClick={handleLogout} size="large">
             <LogoutIcon />

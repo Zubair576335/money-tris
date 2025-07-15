@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack, MenuItem, Select, InputLabel, FormControl } from '@mui/material';
 
 const AddExpense = () => {
   const [amount, setAmount] = useState("");
@@ -12,12 +12,27 @@ const AddExpense = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const userId = 1; // Replace with real user ID from auth context/localStorage in production
+  const [categories, setCategories] = useState([]);
+
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/categories?userId=${userId}`);
+        setCategories(response.data);
+      } catch (err) {
+        setError("Failed to load categories.");
+      }
+    };
+    fetchCategories();
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
     setLoading(true);
-    const expenseData = { amount, category, date };
+    const expenseData = { amount, categoryId: category, date };
     try {
       const response = await axios.post("http://localhost:8080/api/expenses/add", expenseData);
       if (response.status === 201) {
@@ -53,13 +68,22 @@ const AddExpense = () => {
                 required
                 autoFocus
               />
-              <TextField
-                label="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                fullWidth
-                required
-              />
+              <FormControl fullWidth required>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  label="Category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  disabled={categories.length === 0}
+                >
+                  {categories.map((cat) => (
+                    <MenuItem key={cat.id} value={cat.id}>{cat.name}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {categories.length === 0 && (
+                <Alert severity="warning">No categories found. Please add a category first.</Alert>
+              )}
               <TextField
                 label="Date"
                 type="date"
@@ -69,7 +93,7 @@ const AddExpense = () => {
                 required
                 InputLabelProps={{ shrink: true }}
               />
-              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading || !category} size="large">
                 {loading ? 'Adding...' : 'Add Expense'}
               </Button>
             </Stack>

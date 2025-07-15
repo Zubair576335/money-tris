@@ -10,6 +10,7 @@ import Footer from './Component/Footer';
 import Navbar from './Component/Navbar';
 import LandingPage from './Component/LandingPage';
 import AboutUs from './Component/AboutUs'; // Import the AboutUs component
+import BudgetManager from './Component/BudgetManager';
 
 function App() {
   const location = useLocation(); // Get the current route location
@@ -30,6 +31,7 @@ function App() {
           <Route path="/expense-list" element={<ExpenseList />} />
           <Route path="/edit-expense/:id" element={<EditExpense />} />
           <Route path="/about-us" element={<AboutUs />} /> {/* Route for About Us */}
+          <Route path="/budgets" element={<BudgetManager />} />
         </Routes>
       </div>
 

@@ -48,8 +48,8 @@ public class ExpenseService {
             if (expense.getAmount() != null) {
                 totalExpenses += expense.getAmount();
             }
-            if (expense.getCategory() != null) {
-                categorySet.add(expense.getCategory());
+            if (expense.getCategory() != null && expense.getCategory().getName() != null) {
+                categorySet.add(expense.getCategory().getName());
             }
             if (expense.getDate() != null && !expense.getDate().isBefore(sevenDaysAgo)) {
                 recentActivity++;

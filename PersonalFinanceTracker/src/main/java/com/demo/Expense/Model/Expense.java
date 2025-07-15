@@ -13,12 +13,14 @@ public class Expense {
     private Long id;
 
     private Double amount;
-    private String category;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
     private LocalDate date;  
 
     public Expense() {}
 
-    public Expense(Long id, Double amount, String category, LocalDate date) {
+    public Expense(Long id, Double amount, Category category, LocalDate date) {
         this.id = id;
         this.amount = amount;
         this.category = category;
@@ -30,13 +32,13 @@ public class Expense {
     public void setId(Long id) { this.id = id; }
     public Double getAmount() { return amount; }
     public void setAmount(Double amount) { this.amount = amount; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
+    public Category getCategory() { return category; }
+    public void setCategory(Category category) { this.category = category; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
 
     @Override
     public String toString() {
-        return "Expense [id=" + id + ", amount=" + amount + ", category=" + category + ", date=" + date + "]";
+        return "Expense [id=" + id + ", amount=" + amount + ", category=" + (category != null ? category.getName() : null) + ", date=" + date + "]";
     }
 }

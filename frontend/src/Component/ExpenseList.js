@@ -105,7 +105,7 @@ const ExpenseList = () => {
                 ) : (
                   expenses.map((expense) => (
                     <TableRow key={expense.id} hover>
-                      <TableCell>{expense.category}</TableCell>
+                      <TableCell>{expense.categoryName}</TableCell>
                       <TableCell>₹{expense.amount}</TableCell>
                       <TableCell>{formatDate(expense.date)}</TableCell>
                       <TableCell align="center">
