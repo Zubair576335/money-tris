@@ -1,6 +1,7 @@
 package com.demo.Expense.Controller;
 
 import com.demo.Expense.Model.Expense;
+import com.demo.Expense.Model.ExpenseSummary;
 import com.demo.Expense.Service.ExpenseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,5 +63,12 @@ public class ExpenseController {
     public ResponseEntity<String> deleteExpense(@PathVariable Long id) {
         expenseService.deleteExpense(id);
         return ResponseEntity.ok("Expense deleted successfully.");
+    }
+
+    // Add summary endpoint
+    @GetMapping("/summary")
+    public ResponseEntity<ExpenseSummary> getExpenseSummary() {
+        ExpenseSummary summary = expenseService.getExpenseSummary();
+        return ResponseEntity.ok(summary);
     }
 }

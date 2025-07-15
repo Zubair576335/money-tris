@@ -1,10 +1,13 @@
 package com.demo.Expense.Service;
 
 import com.demo.Expense.Model.Expense;
+import com.demo.Expense.Model.ExpenseSummary;
 import com.demo.Expense.Repository.ExpenseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +35,26 @@ public class ExpenseService {
     // Method to delete an expense by its ID
     public void deleteExpense(Long id) {
         expenseRepository.deleteById(id);
+    }
+
+    // Method to get summary statistics for all expenses
+    public ExpenseSummary getExpenseSummary() {
+        List<Expense> expenses = expenseRepository.findAll();
+        double totalExpenses = 0;
+        HashSet<String> categorySet = new HashSet<>();
+        int recentActivity = 0;
+        LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
+        for (Expense expense : expenses) {
+            if (expense.getAmount() != null) {
+                totalExpenses += expense.getAmount();
+            }
+            if (expense.getCategory() != null) {
+                categorySet.add(expense.getCategory());
+            }
+            if (expense.getDate() != null && !expense.getDate().isBefore(sevenDaysAgo)) {
+                recentActivity++;
+            }
+        }
+        return new ExpenseSummary(totalExpenses, categorySet.size(), recentActivity);
     }
 }

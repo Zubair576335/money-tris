@@ -1,23 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Grid, Card, CardContent, Button, Stack, Avatar } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Button, Stack, Avatar, CircularProgress, Alert } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import CategoryIcon from '@mui/icons-material/Category';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import axios from "axios";
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const [summary, setSummary] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Placeholder data for summary cards
-  const totalExpenses = 12345;
-  const categories = 5;
-  const recentActivity = 8;
+  useEffect(() => {
+    const fetchSummary = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        const response = await axios.get("http://localhost:8080/api/expenses/summary");
+        setSummary(response.data);
+      } catch (err) {
+        setError("Failed to load dashboard data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSummary();
+  }, []);
 
   return (
     <Box sx={{ minHeight: '100vh', pt: 10, px: { xs: 2, md: 6 }, bgcolor: 'background.default' }}>
-      {/* Welcome Section */}
       <Typography variant="h4" fontWeight={700} mb={2} color="primary">
         Welcome to your Dashboard!
       </Typography>
@@ -25,42 +39,49 @@ const Dashboard = () => {
         Manage your expenses effectively and gain insights into your spending habits.
       </Typography>
 
-      {/* Summary Cards */}
-      <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} sm={4}>
-          <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-            <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
-              <MonetizationOnIcon />
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">Total Expenses</Typography>
-              <Typography variant="h6" fontWeight={700}>₹{totalExpenses}</Typography>
-            </Box>
-          </Card>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', my: 6 }}>
+          <CircularProgress color="primary" />
+        </Box>
+      ) : error ? (
+        <Alert severity="error" sx={{ mb: 4 }}>{error}</Alert>
+      ) : summary && (
+        <Grid container spacing={3} mb={4}>
+          <Grid item xs={12} sm={4}>
+            <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+              <Avatar sx={{ bgcolor: 'primary.main', mr: 2 }}>
+                <MonetizationOnIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">Total Expenses</Typography>
+                <Typography variant="h6" fontWeight={700}>₹{summary.totalExpenses}</Typography>
+              </Box>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+              <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>
+                <CategoryIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">Categories</Typography>
+                <Typography variant="h6" fontWeight={700}>{summary.categories}</Typography>
+              </Box>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={4}>
+            <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
+              <Avatar sx={{ bgcolor: 'error.main', mr: 2 }}>
+                <ListAltIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="subtitle2" color="text.secondary">Recent Activity</Typography>
+                <Typography variant="h6" fontWeight={700}>{summary.recentActivity} expenses</Typography>
+              </Box>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-            <Avatar sx={{ bgcolor: 'secondary.main', mr: 2 }}>
-              <CategoryIcon />
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">Categories</Typography>
-              <Typography variant="h6" fontWeight={700}>{categories}</Typography>
-            </Box>
-          </Card>
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Card elevation={2} sx={{ display: 'flex', alignItems: 'center', p: 2 }}>
-            <Avatar sx={{ bgcolor: 'error.main', mr: 2 }}>
-              <ListAltIcon />
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle2" color="text.secondary">Recent Activity</Typography>
-              <Typography variant="h6" fontWeight={700}>{recentActivity} expenses</Typography>
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
+      )}
 
       {/* Quick Actions */}
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mb={4}>

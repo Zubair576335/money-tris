@@ -16,8 +16,8 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* Render Navbar only on LandingPage */}
-      {location.pathname === '/' && <Navbar />}
+      {/* Render Navbar on all pages */}
+      <Navbar />
 
       <div className="main-content">
         <Routes>
