@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Login.css";
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 
 const Login = () => {
   const [credentials, setCredentials] = useState({
     username: "",
     password: "",
   });
-
-  const navigate = useNavigate(); // useNavigate hook for redirection
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -17,74 +19,73 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setError("");
+    setSuccess("");
+    setLoading(true);
     try {
-      console.log("Submitting login data", credentials);
-
-      // Make POST request to backend
       const response = await axios.post(
         "http://localhost:8080/api/auth/login",
         credentials,
-        { withCredentials: true } // Include session/cookies in the request
+        { withCredentials: true }
       );
-
-      console.log("Server response:", response.data);
-
-      // Assuming backend returns { message: "Login successful" }
       if (response.status === 200 && response.data === "Login successful") {
-        alert("Login successful!");
-
-        // Delay for alert visibility (optional)
+        setSuccess("Login successful!");
         setTimeout(() => {
-          navigate("/dashboard"); // Redirect to dashboard
+          navigate("/dashboard");
         }, 1000);
       } else {
-        alert(response.data.message || "Login failed. Please try again.");
+        setError(response.data.message || "Login failed. Please try again.");
       }
     } catch (error) {
       if (error.response) {
-        console.error("Error response:", error.response);
-        alert("Error: " + (error.response.data.message || "Invalid credentials"));
-      } else if (error.request) {
-        console.error("Error request:", error.request);
-        alert("Error: No response from server. Please try again later.");
+        setError(error.response.data.message || "Invalid credentials");
       } else {
-        console.error("Error:", error.message);
-        alert("Error: " + error.message);
+        setError("Error: " + error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <form onSubmit={handleSubmit}>
-        <h2>Login</h2>
-
-        <input
-          type="text"
-          name="username"
-          placeholder="Username"
-          value={credentials.username}
-          onChange={handleChange}
-          required
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={credentials.password}
-          onChange={handleChange}
-          required
-        />
-
-        <button type="submit">Login</button>
-      </form>
-
-      <p>
-        Don't have an account? <a href="/register">Register</a>
-      </p>
-    </div>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <Card sx={{ maxWidth: 400, width: '100%', p: 2, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Login</Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <Stack spacing={2}>
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && <Alert severity="success">{success}</Alert>}
+              <TextField
+                label="Username"
+                name="username"
+                value={credentials.username}
+                onChange={handleChange}
+                fullWidth
+                required
+                autoFocus
+              />
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                value={credentials.password}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+                {loading ? 'Logging in...' : 'Login'}
+              </Button>
+            </Stack>
+          </Box>
+          <Typography align="center" sx={{ mt: 2 }}>
+            Don't have an account?{' '}
+            <Button variant="text" color="secondary" onClick={() => navigate('/register')}>Register</Button>
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

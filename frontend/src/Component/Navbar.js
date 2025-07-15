@@ -1,30 +1,28 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import "./Navbar.css"; // Make sure to import the CSS file
-import profileImage from "../Images/images.jpg"; // Ensure the path is correct
+import { AppBar, Toolbar, Typography, Button, Avatar, Box, IconButton } from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import profileImage from "../Images/images.jpg";
 
 const Navbar = () => {
-  const navigate = useNavigate();
-
   const handleLogout = () => {
     alert("Logged out successfully!");
-    navigate("/login"); // Redirect to login page after logout
+    window.location.href = "/login";
   };
 
   return (
-    <div className="navbar">
-      <div className="logo">
-        <img src={profileImage} alt="Profile" className="profile-img" />
-      </div>
-      <div className="app-name">
-        <h1>Expense Tracker</h1>
-      </div>
-      <div className="nav-links">
-        <button onClick={handleLogout} className="logout-button">
-          Logout
-        </button>
-      </div>
-    </div>
+    <AppBar position="fixed" color="primary" elevation={2}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar src={profileImage} alt="Profile" sx={{ width: 40, height: 40, mr: 2 }} />
+          <Typography variant="h6" component="div" sx={{ fontWeight: 700 }}>
+            Expense Tracker
+          </Typography>
+        </Box>
+        <IconButton color="inherit" onClick={handleLogout} size="large">
+          <LogoutIcon />
+        </IconButton>
+      </Toolbar>
+    </AppBar>
   );
 };
 

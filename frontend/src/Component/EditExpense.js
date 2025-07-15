@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./EditExpense.css"; // Import CSS for styling
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 
 const EditExpense = () => {
   const { id } = useParams();
@@ -11,9 +11,13 @@ const EditExpense = () => {
     amount: "",
     date: "",
   });
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchExpenseDetails();
+    // eslint-disable-next-line
   }, []);
 
   const fetchExpenseDetails = async () => {
@@ -21,7 +25,7 @@ const EditExpense = () => {
       const response = await axios.get(`http://localhost:8080/api/expenses/${id}`);
       setExpense(response.data);
     } catch (error) {
-      console.error("Error fetching expense details:", error);
+      setError("Error fetching expense details.");
     }
   };
 
@@ -31,33 +35,68 @@ const EditExpense = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
     try {
       await axios.put(`http://localhost:8080/api/expenses/update/${id}`, expense);
-      alert("Expense updated successfully!");
-      navigate("/expense-list"); // Redirect to Expense List after update
+      setSuccess("Expense updated successfully!");
+      setTimeout(() => {
+        navigate("/expense-list");
+      }, 1000);
     } catch (error) {
-      console.error("Error updating expense:", error);
-      alert("Failed to update expense.");
+      setError("Failed to update expense.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="edit-expense-container">
-      <h2>Edit Expense</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Category:</label>
-        <input type="text" name="category" value={expense.category} onChange={handleChange} required />
-
-        <label>Amount:</label>
-        <input type="number" name="amount" value={expense.amount} onChange={handleChange} required />
-
-        <label>Date:</label>
-        <input type="date" name="date" value={expense.date} onChange={handleChange} required />
-
-        <button type="submit" className="save-btn">Save</button>
-        <button type="button" className="cancel-btn" onClick={() => navigate("/")}>Cancel</button>
-      </form>
-    </div>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <Card sx={{ maxWidth: 450, width: '100%', p: 2, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Edit Expense</Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <Stack spacing={2}>
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && <Alert severity="success">{success}</Alert>}
+              <TextField
+                label="Category"
+                name="category"
+                value={expense.category}
+                onChange={handleChange}
+                fullWidth
+                required
+                autoFocus
+              />
+              <TextField
+                label="Amount"
+                name="amount"
+                type="number"
+                value={expense.amount}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Date"
+                name="date"
+                type="date"
+                value={expense.date}
+                onChange={handleChange}
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+                {loading ? 'Saving...' : 'Save'}
+              </Button>
+              <Button type="button" variant="outlined" color="secondary" fullWidth onClick={() => navigate("/expense-list")}>Cancel</Button>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

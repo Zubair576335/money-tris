@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./Register.css"; // Import Register CSS
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 
 const Register = () => {
   const [user, setUser] = useState({
@@ -9,7 +9,9 @@ const Register = () => {
     email: "",
     password: "",
   });
-
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -18,72 +20,74 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setSuccess("");
+    setLoading(true);
     try {
-        const response = await axios.post("http://localhost:8080/api/auth/register", user);
-        alert(response.data); // Show the success message
-        navigate("/login"); // Redirect to login after successful registration
+      const response = await axios.post("http://localhost:8080/api/auth/register", user);
+      setSuccess(response.data);
+      setTimeout(() => {
+        navigate("/login");
+      }, 1200);
     } catch (error) {
-        if (error.response && error.response.data) {
-            alert(error.response.data); // Show the error message from backend
-        } else {
-            alert("Registration failed! Please try again.");
-        }
+      if (error.response && error.response.data) {
+        setError(error.response.data);
+      } else {
+        setError("Registration failed! Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-};
-
+  };
 
   return (
-    <div className="register-container">
-      <div className="register-form-container">
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit}>
-          <table className="register-table">
-            <tbody>
-              <tr>
-                <td><label>Username:</label></td>
-                <td>
-                  <input
-                    type="text"
-                    name="username"
-                    value={user.username}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td><label>Email:</label></td>
-                <td>
-                  <input
-                    type="email"
-                    name="email"
-                    value={user.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td><label>Password:</label></td>
-                <td>
-                  <input
-                    type="password"
-                    name="password"
-                    value={user.password}
-                    onChange={handleChange}
-                    required
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <button type="submit">Register</button>
-        </form>
-        <p>
-          Already have an account? <a href="/login">Login</a>
-        </p>
-      </div>
-    </div>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <Card sx={{ maxWidth: 450, width: '100%', p: 2, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Register</Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <Stack spacing={2}>
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && <Alert severity="success">{success}</Alert>}
+              <TextField
+                label="Username"
+                name="username"
+                value={user.username}
+                onChange={handleChange}
+                fullWidth
+                required
+                autoFocus
+              />
+              <TextField
+                label="Email"
+                name="email"
+                type="email"
+                value={user.email}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Password"
+                name="password"
+                type="password"
+                value={user.password}
+                onChange={handleChange}
+                fullWidth
+                required
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+                {loading ? 'Registering...' : 'Register'}
+              </Button>
+            </Stack>
+          </Box>
+          <Typography align="center" sx={{ mt: 2 }}>
+            Already have an account?{' '}
+            <Button variant="text" color="secondary" onClick={() => navigate('/login')}>Login</Button>
+          </Typography>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

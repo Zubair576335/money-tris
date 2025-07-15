@@ -1,7 +1,26 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "./ExpenseList.css"; // Import the CSS file
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Tooltip,
+  Box,
+  Stack
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const formatDate = (dateString) => {
   const date = new Date(dateString);
@@ -47,58 +66,69 @@ const ExpenseList = () => {
   };
 
   return (
-    <div className="expense-container">
-      <h2>Expense List</h2>
-
-      {/* Add Expense button */}
-      <button className="add-expense-btn" onClick={handleAddExpense}>
-        Add Expense
-      </button>
-
-      <div className="table-container">
-        <table className="expense-table">
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Amount</th>
-              <th>Date</th>
-              <th>Operations</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.length === 0 ? (
-              <tr>
-                <td colSpan="4" className="no-data">
-                  No expenses found
-                </td>
-              </tr>
-            ) : (
-              expenses.map((expense) => (
-                <tr key={expense.id}>
-                  <td>{expense.category}</td>
-                  <td>₹{expense.amount}</td>
-                  <td className="date-column">{formatDate(expense.date)}</td>
-                  <td className="operation-column">
-                    <button
-                      className="update-btn"
-                      onClick={() => handleUpdate(expense.id)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(expense.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <Box sx={{ minHeight: '100vh', pt: 10, px: { xs: 1, md: 6 }, bgcolor: 'background.default' }}>
+      <Card elevation={3} sx={{ maxWidth: 1200, mx: 'auto', p: 3 }}>
+        <CardContent>
+          <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'stretch', sm: 'center' }} mb={3} spacing={2}>
+            <Typography variant="h4" fontWeight={700} color="primary">
+              Expense List
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<AddIcon />}
+              onClick={handleAddExpense}
+              size="large"
+            >
+              Add Expense
+            </Button>
+          </Stack>
+          <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><b>Category</b></TableCell>
+                  <TableCell><b>Amount</b></TableCell>
+                  <TableCell><b>Date</b></TableCell>
+                  <TableCell align="center"><b>Actions</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {expenses.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={4} align="center">
+                      <Typography color="text.secondary" fontStyle="italic" py={3}>
+                        No expenses found
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  expenses.map((expense) => (
+                    <TableRow key={expense.id} hover>
+                      <TableCell>{expense.category}</TableCell>
+                      <TableCell>₹{expense.amount}</TableCell>
+                      <TableCell>{formatDate(expense.date)}</TableCell>
+                      <TableCell align="center">
+                        <Tooltip title="Edit">
+                          <IconButton color="primary" onClick={() => handleUpdate(expense.id)}>
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton color="error" onClick={() => handleDelete(expense.id)}>
+                            <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 

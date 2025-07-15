@@ -1,82 +1,82 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
 
 const AddExpense = () => {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const expenseData = {
-      amount,
-      category,
-      date,
-    };
-
+    setError("");
+    setSuccess("");
+    setLoading(true);
+    const expenseData = { amount, category, date };
     try {
-      // Send POST request to add expense
       const response = await axios.post("http://localhost:8080/api/expenses/add", expenseData);
-
-      console.log("API Response:", response.data); // Log the response
-
-      if (response.status === 201) { // ✅ Check for 201 Created
-        alert("Expense added successfully!"); // Show success alert
-
-        // Redirect after 1 second
+      if (response.status === 201) {
+        setSuccess("Expense added successfully!");
         setTimeout(() => {
           navigate("/expense-list");
         }, 1000);
       } else {
-        alert("Failed to add expense. Please try again.");
+        setError("Failed to add expense. Please try again.");
       }
     } catch (error) {
-      console.error("Error adding expense:", error);
-      alert("Error adding expense. Please try again later.");
+      setError("Error adding expense. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="expense-form">
-      <h2>Add Expense</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Amount</label>
-          <input
-            type="number"
-            placeholder="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Category</label>
-          <input
-            type="text"
-            placeholder="Category"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <label>Date</label>
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <button type="submit" className="btn-submit">Add Expense</button>
-        </div>
-      </form>
-    </div>
+    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
+      <Card sx={{ maxWidth: 450, width: '100%', p: 2, boxShadow: 3 }}>
+        <CardContent>
+          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Add Expense</Typography>
+          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
+            <Stack spacing={2}>
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && <Alert severity="success">{success}</Alert>}
+              <TextField
+                label="Amount"
+                type="number"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                fullWidth
+                required
+                autoFocus
+              />
+              <TextField
+                label="Category"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                fullWidth
+                required
+              />
+              <TextField
+                label="Date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                fullWidth
+                required
+                InputLabelProps={{ shrink: true }}
+              />
+              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
+                {loading ? 'Adding...' : 'Add Expense'}
+              </Button>
+            </Stack>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
