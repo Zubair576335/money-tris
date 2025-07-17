@@ -19,7 +19,8 @@ const Dashboard = () => {
       setLoading(true);
       setError("");
       try {
-        const response = await axios.get("http://localhost:8080/api/expenses/summary");
+        const userId = localStorage.getItem('userId');
+        const response = await axios.get(`/api/expenses/summary?userId=${userId}`);
         setSummary(response.data);
       } catch (err) {
         setError("Failed to load dashboard data.");

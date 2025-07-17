@@ -17,6 +17,7 @@ RUN npm run build
 # Use Nginx for serving static files
 FROM nginx:alpine
 COPY --from=0 /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80

@@ -1,92 +1,94 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, TextField, Typography, Snackbar, Alert, Paper } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [user, setUser] = useState({
-    username: "",
-    email: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    if (!username || !password || !email) {
+      setSnackbar({ open: true, message: 'All fields are required.', severity: 'error' });
+      return;
+    }
     try {
-      const response = await axios.post("http://localhost:8080/api/auth/register", user);
-      setSuccess(response.data);
-      setTimeout(() => {
-        navigate("/login");
-      }, 1200);
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setError(error.response.data);
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, email })
+      });
+      if (res.ok) {
+        // After successful registration, log the user in to get numeric userId
+        const loginRes = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        if (loginRes.ok) {
+          const data = await loginRes.json();
+          if (data.userId) {
+            localStorage.setItem('userId', data.userId);
+          } else {
+            localStorage.setItem('userId', username); // fallback
+          }
+          localStorage.setItem('isLoggedIn', 'true');
+          setSnackbar({ open: true, message: 'Registration successful!', severity: 'success' });
+          setTimeout(() => navigate('/dashboard'), 1000);
+        } else {
+          setSnackbar({ open: true, message: 'Registration succeeded but login failed.', severity: 'warning' });
+        }
       } else {
-        setError("Registration failed! Please try again.");
+        const msg = await res.text();
+        setSnackbar({ open: true, message: msg || 'Registration failed.', severity: 'error' });
       }
-    } finally {
-      setLoading(false);
+    } catch {
+      setSnackbar({ open: true, message: 'Network error.', severity: 'error' });
     }
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
-      <Card sx={{ maxWidth: 450, width: '100%', p: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Register</Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
-            <Stack spacing={2}>
-              {error && <Alert severity="error">{error}</Alert>}
-              {success && <Alert severity="success">{success}</Alert>}
-              <TextField
-                label="Username"
-                name="username"
-                value={user.username}
-                onChange={handleChange}
-                fullWidth
-                required
-                autoFocus
-              />
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={user.email}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={user.password}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
-                {loading ? 'Registering...' : 'Register'}
-              </Button>
-            </Stack>
-          </Box>
-          <Typography align="center" sx={{ mt: 2 }}>
-            Already have an account?{' '}
-            <Button variant="text" color="secondary" onClick={() => navigate('/login')}>Login</Button>
-          </Typography>
-        </CardContent>
-      </Card>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+      <Paper sx={{ p: 4, boxShadow: 3, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom>Register</Typography>
+        <form onSubmit={handleRegister}>
+          <TextField
+            label="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>Register</Button>
+        </form>
+      </Paper>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

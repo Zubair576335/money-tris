@@ -1,90 +1,73 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { Card, CardContent, Typography, TextField, Button, Box, Alert, Stack } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, TextField, Typography, Snackbar, Alert, Paper } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
-  const [credentials, setCredentials] = useState({
-    username: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    setLoading(true);
+    if (!username || !password) {
+      setSnackbar({ open: true, message: 'All fields are required.', severity: 'error' });
+      return;
+    }
     try {
-      const response = await axios.post(
-        "http://localhost:8080/api/auth/login",
-        credentials,
-        { withCredentials: true }
-      );
-      if (response.status === 200 && response.data === "Login successful") {
-        setSuccess("Login successful!");
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1000);
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.userId) {
+          localStorage.setItem('userId', data.userId);
+        } else {
+          localStorage.setItem('userId', username); // fallback, should not happen
+        }
+        localStorage.setItem('isLoggedIn', 'true');
+        setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
+        setTimeout(() => navigate('/dashboard'), 1000);
       } else {
-        setError(response.data.message || "Login failed. Please try again.");
+        setSnackbar({ open: true, message: 'Invalid username or password.', severity: 'error' });
       }
-    } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "Invalid credentials");
-      } else {
-        setError("Error: " + error.message);
-      }
-    } finally {
-      setLoading(false);
+    } catch {
+      setSnackbar({ open: true, message: 'Network error.', severity: 'error' });
     }
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
-      <Card sx={{ maxWidth: 400, width: '100%', p: 2, boxShadow: 3 }}>
-        <CardContent>
-          <Typography variant="h5" fontWeight={700} align="center" gutterBottom>Login</Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2 }}>
-            <Stack spacing={2}>
-              {error && <Alert severity="error">{error}</Alert>}
-              {success && <Alert severity="success">{success}</Alert>}
-              <TextField
-                label="Username"
-                name="username"
-                value={credentials.username}
-                onChange={handleChange}
-                fullWidth
-                required
-                autoFocus
-              />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={credentials.password}
-                onChange={handleChange}
-                fullWidth
-                required
-              />
-              <Button type="submit" variant="contained" color="primary" fullWidth disabled={loading} size="large">
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
-            </Stack>
-          </Box>
-          <Typography align="center" sx={{ mt: 2 }}>
-            Don't have an account?{' '}
-            <Button variant="text" color="secondary" onClick={() => navigate('/register')}>Register</Button>
-          </Typography>
-        </CardContent>
-      </Card>
+    <Box sx={{ maxWidth: 400, mx: 'auto', mt: 8 }}>
+      <Paper sx={{ p: 4, boxShadow: 3, borderRadius: 2 }}>
+        <Typography variant="h5" gutterBottom>Login</Typography>
+        <form onSubmit={handleLogin}>
+          <TextField
+            label="Username"
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            required
+          />
+          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>Login</Button>
+        </form>
+      </Paper>
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
