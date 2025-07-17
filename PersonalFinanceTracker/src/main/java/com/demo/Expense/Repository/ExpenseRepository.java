@@ -8,4 +8,5 @@ import com.demo.Expense.Model.User;
 
 public interface ExpenseRepository extends JpaRepository<Expense, Long> {
     List<Expense> findByUser(User user);
+    List<Expense> findByUserAndDateBetween(User user, java.time.LocalDate start, java.time.LocalDate end);
 }

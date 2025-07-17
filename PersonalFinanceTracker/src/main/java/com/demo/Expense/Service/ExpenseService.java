@@ -82,4 +82,8 @@ public class ExpenseService {
         }
         return new ExpenseSummary(totalExpenses, categorySet.size(), recentActivity);
     }
+
+    public List<Expense> getExpensesByUserAndDateRange(User user, LocalDate start, LocalDate end) {
+        return expenseRepository.findByUserAndDateBetween(user, start, end);
+    }
 }

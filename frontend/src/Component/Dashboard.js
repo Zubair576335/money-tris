@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Grid, Card, CardContent, Button, Stack, Avatar, CircularProgress, Alert } from '@mui/material';
+import { Box, Typography, Grid, Card, CardContent, Button, Stack, Avatar, CircularProgress, Alert, LinearProgress, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import CategoryIcon from '@mui/icons-material/Category';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 import axios from "axios";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [budgetVsSpent, setBudgetVsSpent] = useState([]);
+  const [budgetLoading, setBudgetLoading] = useState(true);
+  const [budgetError, setBudgetError] = useState('');
+  const [categoryPieData, setCategoryPieData] = useState([]);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -29,6 +34,36 @@ const Dashboard = () => {
       }
     };
     fetchSummary();
+  }, []);
+
+  useEffect(() => {
+    const fetchBudgetVsSpent = async () => {
+      setBudgetLoading(true);
+      setBudgetError('');
+      try {
+        const userId = localStorage.getItem('userId');
+        const res = await axios.get(`/api/expenses/budget-vs-spent?userId=${userId}`);
+        setBudgetVsSpent(res.data);
+      } catch (err) {
+        setBudgetError('Failed to load budget vs spent data.');
+      } finally {
+        setBudgetLoading(false);
+      }
+    };
+    fetchBudgetVsSpent();
+  }, []);
+
+  useEffect(() => {
+    const fetchCategoryPieData = async () => {
+      try {
+        const userId = localStorage.getItem('userId');
+        const res = await axios.get(`/api/expenses/budget-vs-spent?userId=${userId}`);
+        // Only include categories with spent > 0
+        const data = res.data.filter(row => row.spent > 0).map(row => ({ name: row.categoryName, value: row.spent }));
+        setCategoryPieData(data);
+      } catch {}
+    };
+    fetchCategoryPieData();
   }, []);
 
   return (
@@ -106,12 +141,72 @@ const Dashboard = () => {
         </Button>
       </Stack>
 
-      {/* Chart Placeholder */}
+      {/* Expense Overview Pie Chart */}
       <Card elevation={2} sx={{ p: 4, mt: 2, textAlign: 'center' }}>
-        <PieChartIcon sx={{ fontSize: 60, color: 'primary.light', mb: 2 }} />
-        <Typography variant="h6" fontWeight={600} mb={1}>Expense Overview (Coming Soon)</Typography>
-        <Typography color="text.secondary">Visualize your spending with interactive charts and graphs.</Typography>
+        <Typography variant="h6" fontWeight={600} mb={2}>Expense Overview</Typography>
+        {categoryPieData.length === 0 ? (
+          <Alert severity="info">No expenses to display for this month.</Alert>
+        ) : (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={categoryPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={100} label>
+                {categoryPieData.map((entry, idx) => (
+                  <Cell key={`cell-${idx}`} fill={['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#FFBB28', '#FF8042'][idx % 7]} />
+                ))}
+              </Pie>
+              <Tooltip />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        )}
       </Card>
+
+      {/* Budget vs Spent Table */}
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6" fontWeight={700} mb={2} color="primary">Budgets vs. Expenses (This Month)</Typography>
+        {budgetLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+            <CircularProgress color="primary" />
+          </Box>
+        ) : budgetError ? (
+          <Alert severity="error">{budgetError}</Alert>
+        ) : budgetVsSpent.length === 0 ? (
+          <Alert severity="info">No budget or expense data for this month.</Alert>
+        ) : (
+          <TableContainer component={Paper} sx={{ borderRadius: 2, boxShadow: 1 }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><b>Category</b></TableCell>
+                  <TableCell><b>Budget</b></TableCell>
+                  <TableCell><b>Spent</b></TableCell>
+                  <TableCell><b>Progress</b></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {budgetVsSpent.map((row) => {
+                  const percent = row.budget ? Math.min(100, (row.spent / row.budget) * 100) : 0;
+                  return (
+                    <TableRow key={row.categoryId} hover>
+                      <TableCell>{row.categoryName}</TableCell>
+                      <TableCell>{row.budget != null ? `₹${row.budget}` : <i>No budget</i>}</TableCell>
+                      <TableCell>{`₹${row.spent}`}</TableCell>
+                      <TableCell sx={{ minWidth: 120 }}>
+                        {row.budget ? (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <LinearProgress variant="determinate" value={percent} sx={{ flex: 1, height: 8, borderRadius: 5 }} color={percent >= 100 ? 'error' : percent >= 90 ? 'warning' : 'primary'} />
+                            <Typography variant="body2" sx={{ minWidth: 36 }}>{Math.round(percent)}%</Typography>
+                          </Box>
+                        ) : <i>-</i>}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Box>
     </Box>
   );
 };

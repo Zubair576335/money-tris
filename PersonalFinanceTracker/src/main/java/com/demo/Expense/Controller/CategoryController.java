@@ -38,4 +38,27 @@ public class CategoryController {
         Category saved = categoryRepository.save(category);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
+    // Update a category name
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody Category updatedCategory, @RequestParam Long userId) {
+        Optional<Category> catOpt = categoryRepository.findById(id);
+        if (!catOpt.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
+        Category cat = catOpt.get();
+        if (!cat.getUser().getId().equals(userId)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed");
+        cat.setName(updatedCategory.getName());
+        categoryRepository.save(cat);
+        return ResponseEntity.ok(cat);
+    }
+
+    // Delete a category
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCategory(@PathVariable Long id, @RequestParam Long userId) {
+        Optional<Category> catOpt = categoryRepository.findById(id);
+        if (!catOpt.isPresent()) return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found");
+        Category cat = catOpt.get();
+        if (!cat.getUser().getId().equals(userId)) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Not allowed");
+        categoryRepository.delete(cat);
+        return ResponseEntity.ok("Category deleted");
+    }
 } 

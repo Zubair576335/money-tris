@@ -18,12 +18,17 @@ public class Report {
     @Column(nullable = false)
     private String path;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     public Report() {}
 
-    public Report(String filename, LocalDateTime generatedAt, String path) {
+    public Report(String filename, LocalDateTime generatedAt, String path, User user) {
         this.filename = filename;
         this.generatedAt = generatedAt;
         this.path = path;
+        this.user = user;
     }
 
     public Long getId() { return id; }
@@ -34,4 +39,6 @@ public class Report {
     public void setGeneratedAt(LocalDateTime generatedAt) { this.generatedAt = generatedAt; }
     public String getPath() { return path; }
     public void setPath(String path) { this.path = path; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 } 

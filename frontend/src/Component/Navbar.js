@@ -24,6 +24,8 @@ const Navbar = () => {
             <Button color="inherit" component={Link} to="/add-expense">Add Expense</Button>
             <Button color="inherit" component={Link} to="/budgets">Budgets</Button>
             <Button color="inherit" component={Link} to="/expense-list">Expenses</Button>
+            <Button color="inherit" component={Link} to="/reports">Reports</Button>
+            <Button color="inherit" component={Link} to="/job-control">Job Control</Button>
             <Button color="inherit" onClick={handleLogout}>Logout</Button>
           </Box>
         ) : (

@@ -11,6 +11,8 @@ import Navbar from './Component/Navbar';
 import LandingPage from './Component/LandingPage';
 import AboutUs from './Component/AboutUs'; // Import the AboutUs component
 import BudgetManager from './Component/BudgetManager';
+import Reports from './Component/Reports';
+import JobControl from './Component/JobControl';
 
 function App() {
   const location = useLocation(); // Get the current route location
@@ -32,6 +34,8 @@ function App() {
           <Route path="/edit-expense/:id" element={<EditExpense />} />
           <Route path="/about-us" element={<AboutUs />} /> {/* Route for About Us */}
           <Route path="/budgets" element={<BudgetManager />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/job-control" element={<JobControl />} />
         </Routes>
       </div>
 

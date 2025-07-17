@@ -28,25 +28,22 @@ public class BudgetAlertService {
     @Autowired
     private JavaMailSender mailSender;
 
-    // Run every day at 7 AM
-    @Scheduled(cron = "0 0 7 * * *")
-    public void checkBudgetsAndSendAlerts() {
-        int currentMonth = LocalDate.now().getMonthValue();
-        int currentYear = LocalDate.now().getYear();
-        List<User> users = userRepository.findAll();
+    public String runBudgetCheck() {
+        int currentMonth = java.time.LocalDate.now().getMonthValue();
+        int currentYear = java.time.LocalDate.now().getYear();
+        java.util.List<User> users = userRepository.findAll();
+        int alertsSent = 0;
         for (User user : users) {
-            List<Budget> budgets = budgetRepository.findByUserAndMonthAndYear(user, currentMonth, currentYear);
+            java.util.List<Budget> budgets = budgetRepository.findByUserAndMonthAndYear(user, currentMonth, currentYear);
             if (budgets.isEmpty()) continue;
-            // Map category to budget amount
-            Map<String, Double> budgetMap = new HashMap<>();
+            java.util.Map<String, Double> budgetMap = new java.util.HashMap<>();
             for (Budget b : budgets) {
                 if (b.getCategory() != null && b.getCategory().getName() != null) {
                     budgetMap.put(b.getCategory().getName(), b.getAmount());
                 }
             }
-            // Sum expenses per category for this user/month
-            List<Expense> expenses = expenseRepository.findAll(); // TODO: Filter by user if multi-user
-            Map<String, Double> spentMap = new HashMap<>();
+            java.util.List<Expense> expenses = expenseRepository.findAll();
+            java.util.Map<String, Double> spentMap = new java.util.HashMap<>();
             for (Expense e : expenses) {
                 if (e.getCategory() == null || e.getCategory().getName() == null || e.getAmount() == null || e.getDate() == null) continue;
                 if (e.getDate().getMonthValue() == currentMonth && e.getDate().getYear() == currentYear) {
@@ -54,7 +51,6 @@ public class BudgetAlertService {
                     spentMap.put(catName, spentMap.getOrDefault(catName, 0.0) + e.getAmount());
                 }
             }
-            // Check for alerts
             StringBuilder alertMsg = new StringBuilder();
             for (String category : budgetMap.keySet()) {
                 double budget = budgetMap.get(category);
@@ -65,12 +61,21 @@ public class BudgetAlertService {
             }
             if (alertMsg.length() > 0) {
                 sendAlertEmail(user.getEmail(), alertMsg.toString());
+                alertsSent++;
             }
         }
+        return "Budget check complete. Alerts sent: " + alertsSent;
+    }
+
+    // Run every day at 7 AM
+    @org.springframework.scheduling.annotation.Scheduled(cron = "0 0 7 * * *")
+    public void checkBudgetsAndSendAlerts() {
+        runBudgetCheck();
     }
 
     private void sendAlertEmail(String to, String alertMsg) {
         SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("alerts@test-ywj2lpnjmnjg7oqz.mlsender.net");
         message.setTo(to);
         message.setSubject("[Finance Tracker] Budget Alert: Spending Near Limit");
         message.setText("You are close to reaching your budget in the following categories this month:\n\n" + alertMsg);

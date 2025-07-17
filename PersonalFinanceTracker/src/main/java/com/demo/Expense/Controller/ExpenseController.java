@@ -7,6 +7,7 @@ import com.demo.Expense.Model.User;
 import com.demo.Expense.Repository.CategoryRepository;
 import com.demo.Expense.Repository.UserRepository;
 import com.demo.Expense.Service.ExpenseService;
+import com.demo.Expense.Repository.BudgetRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,8 @@ public class ExpenseController {
     private CategoryRepository categoryRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private BudgetRepository budgetRepository;
 
     // Add expense
     @PostMapping("/add")
@@ -112,6 +115,44 @@ public class ExpenseController {
         if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         ExpenseSummary summary = expenseService.getExpenseSummaryByUser(user);
         return ResponseEntity.ok(summary);
+    }
+
+    // Get budget vs spent per category for current month
+    @GetMapping("/budget-vs-spent")
+    public ResponseEntity<List<Map<String, Object>>> getBudgetVsSpent(@RequestParam Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        int month = java.time.LocalDate.now().getMonthValue();
+        int year = java.time.LocalDate.now().getYear();
+        // Get all budgets for user for this month
+        List<com.demo.Expense.Model.Budget> budgets = budgetRepository.findByUserAndMonthAndYear(user, month, year);
+        // Get all expenses for user for this month
+        List<Expense> expenses = expenseService.getExpensesByUser(user);
+        java.util.Map<Long, Double> spentByCategory = new java.util.HashMap<>();
+        for (Expense e : expenses) {
+            if (e.getDate() != null && e.getDate().getMonthValue() == month && e.getDate().getYear() == year && e.getCategory() != null) {
+                long catId = e.getCategory().getId();
+                spentByCategory.put(catId, spentByCategory.getOrDefault(catId, 0.0) + (e.getAmount() != null ? e.getAmount() : 0.0));
+            }
+        }
+        java.util.Set<Long> allCategoryIds = new java.util.HashSet<>();
+        for (com.demo.Expense.Model.Budget b : budgets) allCategoryIds.add(b.getCategory().getId());
+        allCategoryIds.addAll(spentByCategory.keySet());
+        java.util.List<Map<String, Object>> result = new java.util.ArrayList<>();
+        for (Long catId : allCategoryIds) {
+            Map<String, Object> row = new java.util.HashMap<>();
+            com.demo.Expense.Model.Category cat = null;
+            for (com.demo.Expense.Model.Budget b : budgets) if (b.getCategory().getId().equals(catId)) cat = b.getCategory();
+            if (cat == null) {
+                for (Expense e : expenses) if (e.getCategory() != null && e.getCategory().getId().equals(catId)) cat = e.getCategory();
+            }
+            row.put("categoryId", catId);
+            row.put("categoryName", cat != null ? cat.getName() : "");
+            row.put("budget", budgets.stream().filter(b -> b.getCategory().getId().equals(catId)).map(com.demo.Expense.Model.Budget::getAmount).findFirst().orElse(null));
+            row.put("spent", spentByCategory.getOrDefault(catId, 0.0));
+            result.add(row);
+        }
+        return ResponseEntity.ok(result);
     }
 
     private Map<String, Object> expenseToDto(Expense expense) {
