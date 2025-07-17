@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import com.demo.Expense.Model.User;
 
 @Service
 public class ExpenseService {
@@ -40,6 +41,30 @@ public class ExpenseService {
     // Method to get summary statistics for all expenses
     public ExpenseSummary getExpenseSummary() {
         List<Expense> expenses = expenseRepository.findAll();
+        double totalExpenses = 0;
+        HashSet<String> categorySet = new HashSet<>();
+        int recentActivity = 0;
+        LocalDate sevenDaysAgo = LocalDate.now().minusDays(7);
+        for (Expense expense : expenses) {
+            if (expense.getAmount() != null) {
+                totalExpenses += expense.getAmount();
+            }
+            if (expense.getCategory() != null && expense.getCategory().getName() != null) {
+                categorySet.add(expense.getCategory().getName());
+            }
+            if (expense.getDate() != null && !expense.getDate().isBefore(sevenDaysAgo)) {
+                recentActivity++;
+            }
+        }
+        return new ExpenseSummary(totalExpenses, categorySet.size(), recentActivity);
+    }
+
+    public List<Expense> getExpensesByUser(User user) {
+        return expenseRepository.findByUser(user);
+    }
+
+    public ExpenseSummary getExpenseSummaryByUser(User user) {
+        List<Expense> expenses = expenseRepository.findByUser(user);
         double totalExpenses = 0;
         HashSet<String> categorySet = new HashSet<>();
         int recentActivity = 0;

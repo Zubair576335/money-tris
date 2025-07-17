@@ -3,7 +3,9 @@ package com.demo.Expense.Controller;
 import com.demo.Expense.Model.Expense;
 import com.demo.Expense.Model.ExpenseSummary;
 import com.demo.Expense.Model.Category;
+import com.demo.Expense.Model.User;
 import com.demo.Expense.Repository.CategoryRepository;
+import com.demo.Expense.Repository.UserRepository;
 import com.demo.Expense.Service.ExpenseService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,8 @@ public class ExpenseController {
     private ExpenseService expenseService;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     // Add expense
     @PostMapping("/add")
@@ -34,12 +38,16 @@ public class ExpenseController {
         try {
             Double amount = Double.valueOf(payload.get("amount").toString());
             Long categoryId = Long.valueOf(payload.get("categoryId").toString());
+            Long userId = Long.valueOf(payload.get("userId").toString());
             String dateStr = payload.get("date").toString();
             Category category = categoryRepository.findById(categoryId).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             if (category == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid category");
+            if (user == null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid user");
             Expense expense = new Expense();
             expense.setAmount(amount);
             expense.setCategory(category);
+            expense.setUser(user);
             expense.setDate(LocalDate.parse(dateStr));
             expenseService.saveExpense(expense);
             return ResponseEntity.status(HttpStatus.CREATED).body(expenseToDto(expense));
@@ -48,10 +56,12 @@ public class ExpenseController {
         }
     }
 
-    // Get all expenses
-    @GetMapping("/all")
-    public ResponseEntity<List<Map<String, Object>>> getAllExpenses() {
-        List<Expense> expenses = expenseService.getAllExpenses();
+    // Get all expenses for a user
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Map<String, Object>>> getExpensesByUser(@PathVariable Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        List<Expense> expenses = expenseService.getExpensesByUser(user);
         List<Map<String, Object>> dtos = expenses.stream().map(this::expenseToDto).collect(Collectors.toList());
         return ResponseEntity.ok(dtos);
     }
@@ -97,8 +107,10 @@ public class ExpenseController {
 
     // Add summary endpoint
     @GetMapping("/summary")
-    public ResponseEntity<ExpenseSummary> getExpenseSummary() {
-        ExpenseSummary summary = expenseService.getExpenseSummary();
+    public ResponseEntity<ExpenseSummary> getExpenseSummary(@RequestParam Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        ExpenseSummary summary = expenseService.getExpenseSummaryByUser(user);
         return ResponseEntity.ok(summary);
     }
 

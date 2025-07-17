@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 
 import javax.persistence.*;
+import com.demo.Expense.Model.User;
 
 @Entity
 public class Expense {
@@ -16,7 +17,10 @@ public class Expense {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-    private LocalDate date;  
+    private LocalDate date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Expense() {}
 
@@ -36,6 +40,8 @@ public class Expense {
     public void setCategory(Category category) { this.category = category; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 
     @Override
     public String toString() {
