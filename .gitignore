@@ -28,6 +28,7 @@ Thumbs.db
 
 # Docker
 *.pid
+docker-compose.yml
 
 # Logs
 logs/
