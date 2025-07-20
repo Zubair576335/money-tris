@@ -16,14 +16,15 @@ const Register = () => {
       return;
     }
     try {
-      const res = await fetch('/api/auth/register', {
+      const API_URL = process.env.REACT_APP_API_URL;
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password, email })
       });
       if (res.ok) {
         // After successful registration, log the user in to get numeric userId
-        const loginRes = await fetch('/api/auth/login', {
+        const loginRes = await fetch(`${API_URL}/api/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })

@@ -41,8 +41,9 @@ const AddExpense = ({ onExpenseAdded }) => {
 
   const fetchCategories = async () => {
     const userId = localStorage.getItem('userId');
+    const API_URL = process.env.REACT_APP_API_URL;
     try {
-      const res = await fetch(`/api/categories?userId=${userId}`);
+      const res = await fetch(`${API_URL}/api/categories?userId=${userId}`);
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch (err) {
@@ -57,8 +58,9 @@ const AddExpense = ({ onExpenseAdded }) => {
       return;
     }
     const userId = localStorage.getItem('userId');
+    const API_URL = process.env.REACT_APP_API_URL;
     try {
-      const res = await fetch('/api/expenses/add', {
+      const res = await fetch(`${API_URL}/api/expenses/add`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,9 +86,10 @@ const AddExpense = ({ onExpenseAdded }) => {
 
   const handleAddCategory = async () => {
     const userId = localStorage.getItem('userId');
+    const API_URL = process.env.REACT_APP_API_URL;
     if (!newCategory) return;
     try {
-      const res = await fetch(`/api/categories?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newCategory })
@@ -115,9 +118,10 @@ const AddExpense = ({ onExpenseAdded }) => {
   };
   const handleEditCategorySubmit = async () => {
     const userId = localStorage.getItem('userId');
+    const API_URL = process.env.REACT_APP_API_URL;
     if (!editCategoryName) return;
     try {
-      const res = await fetch(`/api/categories/${editCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${editCategoryId}?userId=${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editCategoryName })
@@ -135,8 +139,9 @@ const AddExpense = ({ onExpenseAdded }) => {
   };
   const handleDeleteCategoryConfirm = async () => {
     const userId = localStorage.getItem('userId');
+    const API_URL = process.env.REACT_APP_API_URL;
     try {
-      const res = await fetch(`/api/categories/${deleteCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${deleteCategoryId}?userId=${userId}`, {
         method: 'DELETE'
       });
       if (res.ok) {

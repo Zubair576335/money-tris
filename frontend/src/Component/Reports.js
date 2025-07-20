@@ -8,12 +8,14 @@ const Reports = () => {
   const [triggerLoading, setTriggerLoading] = useState(false);
   const [triggerMsg, setTriggerMsg] = useState('');
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const fetchReports = async () => {
     setLoading(true);
     setError('');
     try {
       const userId = localStorage.getItem('userId');
-      const res = await fetch(`/api/reports?userId=${userId}`);
+      const res = await fetch(`${API_URL}/api/reports?userId=${userId}`);
       if (!res.ok) throw new Error('Failed to fetch reports');
       const data = await res.json();
       setReports(data);
@@ -29,14 +31,14 @@ const Reports = () => {
   }, []);
 
   const handleDownload = (id) => {
-    window.open(`/api/reports/download/${id}`, '_blank');
+    window.open(`${API_URL}/api/reports/download/${id}`, '_blank');
   };
 
   const handleTrigger = async () => {
     setTriggerLoading(true);
     setTriggerMsg('');
     try {
-      const res = await fetch('/api/reports/trigger', { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/reports/trigger`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to trigger report generation');
       const data = await res.text();
       setTriggerMsg(data);

@@ -30,6 +30,7 @@ const formatDate = (dateString) => {
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
   const navigate = useNavigate();
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetchExpenses();
@@ -38,7 +39,7 @@ const ExpenseList = () => {
   const fetchExpenses = async () => {
     try {
       const userId = localStorage.getItem('userId');
-      const response = await axios.get(`/api/expenses/user/${userId}`);
+      const response = await axios.get(`${API_URL}/api/expenses/user/${userId}`);
       setExpenses(response.data);
     } catch (error) {
       console.error("Error fetching expenses:", error);
@@ -52,7 +53,7 @@ const ExpenseList = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this expense?")) {
       try {
-        await axios.delete(`http://localhost:8080/api/expenses/delete/${id}`);
+        await axios.delete(`${API_URL}/api/expenses/delete/${id}`);
         setExpenses(expenses.filter((expense) => expense.id !== id));
         alert("Expense deleted successfully!");
       } catch (error) {

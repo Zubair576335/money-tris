@@ -7,10 +7,12 @@ const JobControl = () => {
   const [triggerLoading, setTriggerLoading] = useState(false);
   const [msg, setMsg] = useState('');
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const fetchHistory = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/jobs/history');
+      const res = await fetch(`${API_URL}/api/jobs/history`);
       if (!res.ok) throw new Error('Failed to fetch job history');
       const data = await res.json();
       setHistory(data);
@@ -29,7 +31,7 @@ const JobControl = () => {
     setTriggerLoading(true);
     setMsg('');
     try {
-      const res = await fetch('/api/jobs/trigger-budget-check', { method: 'POST' });
+      const res = await fetch(`${API_URL}/api/jobs/trigger-budget-check`, { method: 'POST' });
       if (!res.ok) throw new Error('Failed to trigger budget check');
       const data = await res.json();
       setMsg(`Budget check triggered: ${data.status} (${data.message || ''})`);

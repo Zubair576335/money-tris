@@ -19,13 +19,15 @@ const Dashboard = () => {
   const [budgetError, setBudgetError] = useState('');
   const [categoryPieData, setCategoryPieData] = useState([]);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const fetchSummary = async () => {
       setLoading(true);
       setError("");
       try {
         const userId = localStorage.getItem('userId');
-        const response = await axios.get(`/api/expenses/summary?userId=${userId}`);
+        const response = await axios.get(`${API_URL}/api/expenses/summary?userId=${userId}`);
         setSummary(response.data);
       } catch (err) {
         setError("Failed to load dashboard data.");
@@ -42,7 +44,7 @@ const Dashboard = () => {
       setBudgetError('');
       try {
         const userId = localStorage.getItem('userId');
-        const res = await axios.get(`/api/expenses/budget-vs-spent?userId=${userId}`);
+        const res = await axios.get(`${API_URL}/api/expenses/budget-vs-spent?userId=${userId}`);
         setBudgetVsSpent(res.data);
       } catch (err) {
         setBudgetError('Failed to load budget vs spent data.');
@@ -57,7 +59,7 @@ const Dashboard = () => {
     const fetchCategoryPieData = async () => {
       try {
         const userId = localStorage.getItem('userId');
-        const res = await axios.get(`/api/expenses/budget-vs-spent?userId=${userId}`);
+        const res = await axios.get(`${API_URL}/api/expenses/budget-vs-spent?userId=${userId}`);
         // Only include categories with spent > 0
         const data = res.data.filter(row => row.spent > 0).map(row => ({ name: row.categoryName, value: row.spent }));
         setCategoryPieData(data);

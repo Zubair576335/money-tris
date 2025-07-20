@@ -26,10 +26,12 @@ const EditExpense = () => {
   const [openDeleteCategory, setOpenDeleteCategory] = useState(false);
   const [deleteCategoryId, setDeleteCategoryId] = useState(null);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const fetchCategories = async () => {
     try {
       const userId = localStorage.getItem('userId') || 1;
-      const response = await axios.get(`/api/categories?userId=${userId}`);
+      const response = await axios.get(`${API_URL}/api/categories?userId=${userId}`);
       setCategories(response.data);
     } catch (err) {
       setError('Failed to load categories.');
@@ -44,7 +46,7 @@ const EditExpense = () => {
 
   const fetchExpenseDetails = async () => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/expenses/${id}`);
+      const response = await axios.get(`${API_URL}/api/expenses/${id}`);
       setExpense(response.data);
     } catch (error) {
       setError("Error fetching expense details.");
@@ -61,7 +63,7 @@ const EditExpense = () => {
     setSuccess("");
     setLoading(true);
     try {
-      await axios.put(`http://localhost:8080/api/expenses/update/${id}`, {
+      await axios.put(`${API_URL}/api/expenses/update/${id}`, {
         amount: expense.amount,
         categoryId: expense.categoryId || expense.category || '',
         date: expense.date,
@@ -90,7 +92,7 @@ const EditExpense = () => {
     const userId = localStorage.getItem('userId');
     if (!editCategoryName) return;
     try {
-      const res = await fetch(`/api/categories/${editCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${editCategoryId}?userId=${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editCategoryName })
@@ -109,7 +111,7 @@ const EditExpense = () => {
   const handleDeleteCategoryConfirm = async () => {
     const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch(`/api/categories/${deleteCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${deleteCategoryId}?userId=${userId}`, {
         method: 'DELETE'
       });
       if (res.ok) {

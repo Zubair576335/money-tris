@@ -48,10 +48,12 @@ const BudgetManager = () => {
     fetchCategories();
   }, []);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   const fetchBudgets = async () => {
     const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch(`/api/budgets?userId=${userId}`);
+      const res = await fetch(`${API_URL}/api/budgets?userId=${userId}`);
       const data = await res.json();
       setBudgets(Array.isArray(data) ? data : []);
     } catch {
@@ -62,7 +64,7 @@ const BudgetManager = () => {
   const fetchCategories = async () => {
     const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch(`/api/categories?userId=${userId}`);
+      const res = await fetch(`${API_URL}/api/categories?userId=${userId}`);
       const data = await res.json();
       setCategories(Array.isArray(data) ? data : []);
     } catch {
@@ -80,7 +82,7 @@ const BudgetManager = () => {
     try {
       // Debug: log what is being sent
       // console.log({ amount: parseFloat(amount), categoryId: category, month, year });
-      const res = await fetch(`/api/budgets?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/budgets?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -108,7 +110,7 @@ const BudgetManager = () => {
     const userId = localStorage.getItem('userId');
     if (!newCategory) return;
     try {
-      const res = await fetch(`/api/categories?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories?userId=${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newCategory })
@@ -139,7 +141,7 @@ const BudgetManager = () => {
     const userId = localStorage.getItem('userId');
     if (!editCategoryName) return;
     try {
-      const res = await fetch(`/api/categories/${editCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${editCategoryId}?userId=${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editCategoryName })
@@ -158,7 +160,7 @@ const BudgetManager = () => {
   const handleDeleteCategoryConfirm = async () => {
     const userId = localStorage.getItem('userId');
     try {
-      const res = await fetch(`/api/categories/${deleteCategoryId}?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/api/categories/${deleteCategoryId}?userId=${userId}`, {
         method: 'DELETE'
       });
       if (res.ok) {
